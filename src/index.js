@@ -1,17 +1,72 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import './App.css';
+import api from './Api/axiosConfig';
+import {useState, useEffect} from 'react';
+import Layout from './components/Layout';
+import {Routes, Route} from 'react-router-dom';
+import Home from './components/home/home';
+import Hero from './components/hero/Hero';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+
+function App() {
+
+  const [movies, setMovies] = useState();
+  const [movie, setMovie] = useState();
+  const [reviews, setReviews] = useState([]);
+
+  const getMovies = async () =>{
+    
+    try
+    {
+
+      const response = await api.get("/api/v1/movies");
+
+      setMovies(response.data);
+
+    } 
+    catch(err)
+    {
+      console.log(err);
+    }
+  }
+
+  const getMovieData = async (movieId) => {
+     
+    try 
+    {
+        const response = await api.get(`/api/v1/movies/${movieId}`);
+
+        const singleMovie = response.data;
+
+        setMovie(singleMovie);
+
+        setReviews(singleMovie.reviews);
+        
+
+    } 
+    catch (error) 
+    {
+      console.error(error);
+    }
+
+  }
+
+  useEffect(() => {
+    getMovies();
+  },[])
+
+  return (
+    <div className="App">
+      <Header/>
+      <Routes>
+          <Route path="/" element={<Layout/>}>
+            <Route path="/" element={<Home movies={movies} />} ></Route>
+            
+          </Route>
+      </Routes>
+
+    </div>
+  );
+}
+
+export default App;
